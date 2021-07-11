@@ -1,5 +1,50 @@
-type ExampleEntity @entity {
+type HugoDao @entity {
+  # DAO address
   id: ID!
-  count: BigInt!
-  id: BigInt! # uint256
+
+  # proposals info
+  proposalsCount: Int!
+}
+
+type Proposal @entity {
+  # proposal id
+  id: ID!
+
+  # we get this from creation proposal
+  proposer: Bytes!
+  targets: [Bytes!]
+  values: [Int!]
+  signatures: [String!]
+  calldatas: [Bytes!]
+  startBlock: BigInt!
+  endBlock: BigInt!
+  title: String!
+  description: String!
+  category: Int!
+
+  # collect from votes and etc.
+  forVotes: BigInt!
+  againstVotes: BigInt!
+  abstainVotes: BigInt!
+
+  canceled: Boolean!
+  executed: Boolean!
+  eta: BigInt!
+
+  createdAt: BigInt!
+
+  receipts: [Receipt!] @derivedFrom(field: "proposal")
+}
+
+type Receipt @entity {
+    # just INT
+    id: ID!
+
+    proposal: Proposal!
+
+    voter: Bytes!
+    support: Int!
+    votes: BigInt!
+
+    createdAt: BigInt!
 }

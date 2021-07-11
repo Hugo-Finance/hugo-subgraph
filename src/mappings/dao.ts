@@ -1,92 +1,73 @@
-import { BigInt } from "@graphprotocol/graph-ts"
 import {
-    HugoDao,
     ProposalCanceled,
     ProposalCreated,
     ProposalExecuted,
     ProposalQueued,
-    ProposalThresholdSet,
-    VoteCast,
-    VotingDelaySet,
-    VotingPeriodSet
-} from "../generated/HugoDao/HugoDao"
-import { ExampleEntity } from "../generated/schema"
+    VoteCast
+} from "../../generated/HugoDao/HugoDao"
+import {HugoDao, Proposal, Receipt} from "../../generated/schema"
+import {DAO_ADDRESS, ZERO_BI} from "./helpers";
 
-export function handleProposalCanceled(event: ProposalCanceled): void {
-    // Entities can be loaded from the store using a string ID; this ID
-    // needs to be unique across all entities of the same type
-    let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-    // Entities only exist after they have been saved to the store;
-    // `null` checks allow to create entities on demand
-    if (entity == null) {
-        entity = new ExampleEntity(event.transaction.from.toHex())
-
-        // Entity fields can be set using simple assignments
-        entity.count = BigInt.fromI32(0)
+export function handleProposalCreated(event: ProposalCreated): void {
+    let dao = HugoDao.load(DAO_ADDRESS);
+    if (dao === null) {
+        dao = new HugoDao(DAO_ADDRESS)
+        dao.proposalsCount = 0;
+        dao.save()
     }
 
-    // BigInt and BigDecimal math are supported
-    entity.count = entity.count + BigInt.fromI32(1)
+    let proposal = new Proposal(event.params.id.toString());
+    proposal.proposer = event.params.proposer;
+    proposal.targets = event.params.targets;
+    proposal.values = event.params.values;
+    proposal.signatures = event.params.signatures;
+    proposal.calldatas = event.params.calldatas;
 
-    // Entity fields can be set based on event parameters
-    entity.id = event.params.id
+    proposal.startBlock = event.params.startBlock;
+    proposal.endBlock = event.params.endBlock;
+    proposal.title = event.params.title;
+    proposal.description = event.params.description;
+    proposal.category = event.params.category;
 
-    // Entities can be written to the store with `.save()`
-    entity.save()
+    proposal.forVotes = ZERO_BI;
+    proposal.againstVotes = ZERO_BI;
+    proposal.abstainVotes = ZERO_BI;
 
-    // Note: If a handler doesn't require existing field values, it is faster
-    // _not_ to load the entity from the store. Instead, create it fresh with
-    // `new Entity(...)`, set the fields that should be updated and save the
-    // entity back to the store. Fields that were not set or unset remain
-    // unchanged, allowing for partial updates to be applied.
+    proposal.receipts = [];
 
-    // It is also possible to access smart contracts from mappings. For
-    // example, the contract that has emitted the event can be connected to
-    // with:
-    //
-    // let contract = Contract.bind(event.address)
-    //
-    // The following functions can then be called on this contract to access
-    // state variables and other data:
-    //
-    // - contract.BALLOT_TYPEHASH(...)
-    // - contract.DOMAIN_TYPEHASH(...)
-    // - contract.MAX_PROPOSAL_THRESHOLD(...)
-    // - contract.MAX_VOTING_DELAY(...)
-    // - contract.MAX_VOTING_PERIOD(...)
-    // - contract.MIN_PROPOSAL_THRESHOLD(...)
-    // - contract.MIN_VOTING_DELAY(...)
-    // - contract.MIN_VOTING_PERIOD(...)
-    // - contract.getActions(...)
-    // - contract.getReceipt(...)
-    // - contract.hugo(...)
-    // - contract.initialProposalId(...)
-    // - contract.latestProposalIds(...)
-    // - contract.name(...)
-    // - contract.proposalCount(...)
-    // - contract.proposalMaxOperations(...)
-    // - contract.proposalThreshold(...)
-    // - contract.proposals(...)
-    // - contract.propose(...)
-    // - contract.quorumVotes(...)
-    // - contract.state(...)
-    // - contract.timelock(...)
-    // - contract.version(...)
-    // - contract.votingDelay(...)
-    // - contract.votingPeriod(...)
+    proposal.createdAt = event.block.timestamp;
+    proposal.save()
+
+    dao.proposalsCount += 1;
+    dao.save();
 }
 
-export function handleProposalCreated(event: ProposalCreated): void {}
+export function handleProposalExecuted(event: ProposalExecuted): void {
+    let proposal = Proposal.load(event.params.id.toString());
+    proposal.executed = true;
+    proposal.save()
+}
 
-export function handleProposalExecuted(event: ProposalExecuted): void {}
+export function handleProposalCanceled(event: ProposalCanceled): void {
+    let proposal = Proposal.load(event.params.id.toString());
+    proposal.canceled = true;
+    proposal.save()
+}
 
-export function handleProposalQueued(event: ProposalQueued): void {}
+export function handleProposalQueued(event: ProposalQueued): void {
+    let proposal = Proposal.load(event.params.id.toString());
+    proposal.eta = event.params.eta;
+    proposal.save()
+}
 
-export function handleProposalThresholdSet(event: ProposalThresholdSet): void {}
+export function handleVoteCast(event: VoteCast): void {
+    let receipt = new Receipt(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
 
-export function handleVoteCast(event: VoteCast): void {}
+    receipt.proposal = event.params.proposalId.toString();
+    receipt.voter = event.params.voter;
+    receipt.support = event.params.support;
+    receipt.votes = event.params.votes;
 
-export function handleVotingDelaySet(event: VotingDelaySet): void {}
-
-export function handleVotingPeriodSet(event: VotingPeriodSet): void {}
+    receipt.createdAt = event.block.timestamp;
+    receipt.save();
+}
