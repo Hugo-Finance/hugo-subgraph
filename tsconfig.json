@@ -1,0 +1,12 @@
+
+{
+  "extends": "./node_modules/@graphprotocol/graph-ts/tsconfig.json",
+  "compilerOptions": {
+    "types": ["@graphprotocol/graph-ts"],
+    "skipLibCheck": true,
+    "module": "es6",
+    "moduleResolution": "node",
+    "target": "es5"
+  }
+}
+

@@ -13,7 +13,7 @@ type Proposal @entity {
   # we get this from creation proposal
   proposer: Bytes!
   targets: [Bytes!]
-  values: [Int!]
+  values: [BigInt!]
   signatures: [String!]
   calldatas: [Bytes!]
   startBlock: BigInt!
@@ -33,7 +33,7 @@ type Proposal @entity {
 
   createdAt: BigInt!
 
-  receipts: [Receipt!] @derivedFrom(field: "proposal")
+  receipts: [Receipt!]! @derivedFrom(field: "proposal")
 }
 
 type Receipt @entity {
@@ -48,3 +48,4 @@ type Receipt @entity {
 
     createdAt: BigInt!
 }
+

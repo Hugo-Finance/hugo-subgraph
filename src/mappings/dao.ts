@@ -7,6 +7,8 @@ import {
 } from "../../generated/HugoDao/HugoDao"
 import {HugoDao, Proposal, Receipt} from "../../generated/schema"
 import {DAO_ADDRESS, ZERO_BI} from "./helpers";
+import { Address, Bytes } from '@graphprotocol/graph-ts'
+
 
 export function handleProposalCreated(event: ProposalCreated): void {
     let dao = HugoDao.load(DAO_ADDRESS);
@@ -18,7 +20,8 @@ export function handleProposalCreated(event: ProposalCreated): void {
 
     let proposal = new Proposal(event.params.id.toString());
     proposal.proposer = event.params.proposer;
-    proposal.targets = event.params.targets;
+
+    proposal.targets = event.params.targets as Array<Bytes>;
     proposal.values = event.params.values;
     proposal.signatures = event.params.signatures;
     proposal.calldatas = event.params.calldatas;
@@ -33,7 +36,9 @@ export function handleProposalCreated(event: ProposalCreated): void {
     proposal.againstVotes = ZERO_BI;
     proposal.abstainVotes = ZERO_BI;
 
-    proposal.receipts = [];
+    proposal.canceled = false;
+    proposal.executed = false;
+    proposal.eta = ZERO_BI;
 
     proposal.createdAt = event.block.timestamp;
     proposal.save()
@@ -63,10 +68,21 @@ export function handleProposalQueued(event: ProposalQueued): void {
 export function handleVoteCast(event: VoteCast): void {
     let receipt = new Receipt(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
 
-    receipt.proposal = event.params.proposalId.toString();
+    let proposal = Proposal.load(event.params.proposalId.toString());
+
+    receipt.proposal = proposal.id;
     receipt.voter = event.params.voter;
     receipt.support = event.params.support;
     receipt.votes = event.params.votes;
+
+    if (receipt.support == 1) {
+        proposal.forVotes = proposal.forVotes.plus(receipt.votes);
+    } else if (receipt.support == 0) {
+        proposal.againstVotes = proposal.againstVotes.plus(receipt.votes);
+    } else if (receipt.support == 2) {
+        proposal.abstainVotes = proposal.abstainVotes.plus(receipt.votes);
+    }
+    proposal.save();
 
     receipt.createdAt = event.block.timestamp;
     receipt.save();

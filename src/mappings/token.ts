@@ -9,7 +9,6 @@ import {
     feesAccrued,
     feesPaid
 } from "../../generated/HUGO/HUGO"
-import { ExampleEntity } from "../../generated/schema"
 
 export function handleApproval(event: Approval): void {}
 
