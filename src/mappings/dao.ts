@@ -7,7 +7,7 @@ import {
 } from "../../generated/HugoDao/HugoDao"
 import {HugoDao, Proposal, Receipt} from "../../generated/schema"
 import {DAO_ADDRESS, ZERO_BI} from "./helpers";
-import { Address, Bytes } from '@graphprotocol/graph-ts'
+import {Bytes} from '@graphprotocol/graph-ts'
 
 
 export function handleProposalCreated(event: ProposalCreated): void {

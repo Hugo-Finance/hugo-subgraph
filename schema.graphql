@@ -49,3 +49,33 @@ type Receipt @entity {
     createdAt: BigInt!
 }
 
+type HugoToken @entity {
+    id: ID!
+
+    holdersCount: Int!
+    distributed: BigInt!
+    burned: BigInt!
+
+    dayData: [TokenDayData!]! @derivedFrom(field: "token")
+    holders: [Holder!]! @derivedFrom(field: "token")
+}
+
+type TokenDayData @entity {
+    id: ID!
+    date: Int!
+    token: HugoToken!
+
+    # stats
+    dailyTransactionsCount: Int!
+    dailyFees: BigInt!
+}
+
+type Holder @entity {
+    id: ID!
+    token: HugoToken!
+
+    transfersCount: Int!
+    balance: BigInt! # that is not real balance
+    feesAccrued: BigInt!
+    feesPaid: BigInt!
+}
