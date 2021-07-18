@@ -6,6 +6,7 @@ import {
     OwnershipTransferred,
     Transfer
 } from "../../generated/HUGO/HUGO"
+import { log } from '@graphprotocol/graph-ts'
 import {BURN_ADDRESS, getOrCreateHolder, getOrCreateToken, getOrCreateTokenDayData, ZERO_BI} from "./helpers";
 
 
@@ -36,7 +37,7 @@ export function handleTransfer(event: Transfer): void {
     let sender = getOrCreateHolder(event.params.from);
     let tokenDayData = getOrCreateTokenDayData(event);
 
-    if (receiver.balance === ZERO_BI) {
+    if (receiver.balance == ZERO_BI) {
         // looks like we have new holder;
         token.holdersCount += 1;
     }
@@ -48,7 +49,7 @@ export function handleTransfer(event: Transfer): void {
 
     sender.balance = sender.balance.minus(event.params.amount);
     sender.transfersCount += 1;
-    if (sender.balance === ZERO_BI) {
+    if (sender.balance == ZERO_BI) {
         token.holdersCount -= 1;
     }
 
@@ -63,6 +64,10 @@ export function handleTransfer(event: Transfer): void {
 export function handlefeesAccrued(event: feesAccrued): void {
     let token = getOrCreateToken();
     let holder = getOrCreateHolder(event.params.account);
+
+    if (holder.balance == ZERO_BI) {
+        token.holdersCount += 1;
+    }
 
     holder.balance = holder.balance.plus(event.params.amount);
     holder.feesAccrued = holder.feesAccrued.plus(event.params.amount);
