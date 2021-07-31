@@ -6,9 +6,9 @@ dataSources:
     name: HugoDao
     network: bsc
     source:
-      address: "0x60e9849C8580bF1e2714e5a0331Be230020C4a88"
+      address: "0x217f2DaB51fCbb5B1832b503Acab281DAf9984B8"
       abi: HugoDao
-      startBlock: 9271355
+      startBlock: 11055935
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -38,38 +38,38 @@ dataSources:
           handler: handleVoteCast
       file: ./src/mappings/dao.ts
 
-  - kind: ethereum/contract
-    name: HUGO
-    network: bsc
-    source:
-      address: "0xce195c777e1ce96c30ebec54c91d20417a068706"
-      abi: HUGO
-      startBlock: 6282948
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - Approval
-        - DelegateChanged
-        - OwnershipTransferred
-        - Transfer
-        - feesAccrued
-        - feesPaid
-      abis:
-        - name: HUGO
-          file: ./abis/HUGO.json
-      eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: DelegateChanged(indexed address,indexed address,indexed address)
-          handler: handleDelegateChanged
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        - event: feesAccrued(indexed address,uint256)
-          handler: handlefeesAccrued
-        - event: feesPaid(indexed address,uint256)
-          handler: handlefeesPaid
-      file: ./src/mappings/token.ts
+#  - kind: ethereum/contract
+#    name: HUGO
+#    network: bsc
+#    source:
+#      address: "0xce195c777e1ce96c30ebec54c91d20417a068706"
+#      abi: HUGO
+#      startBlock: 6282948
+#    mapping:
+#      kind: ethereum/events
+#      apiVersion: 0.0.4
+#      language: wasm/assemblyscript
+#      entities:
+#        - Approval
+#        - DelegateChanged
+#        - OwnershipTransferred
+#        - Transfer
+#        - feesAccrued
+#        - feesPaid
+#      abis:
+#        - name: HUGO
+#          file: ./abis/HUGO.json
+#      eventHandlers:
+#        - event: Approval(indexed address,indexed address,uint256)
+#          handler: handleApproval
+#        - event: DelegateChanged(indexed address,indexed address,indexed address)
+#          handler: handleDelegateChanged
+#        - event: OwnershipTransferred(indexed address,indexed address)
+#          handler: handleOwnershipTransferred
+#        - event: Transfer(indexed address,indexed address,uint256)
+#          handler: handleTransfer
+#        - event: feesAccrued(indexed address,uint256)
+#          handler: handlefeesAccrued
+#        - event: feesPaid(indexed address,uint256)
+#          handler: handlefeesPaid
+#      file: ./src/mappings/token.ts
