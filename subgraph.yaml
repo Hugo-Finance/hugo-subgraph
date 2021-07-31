@@ -6,9 +6,9 @@ dataSources:
     name: HugoDao
     network: bsc
     source:
-      address: "0x217f2DaB51fCbb5B1832b503Acab281DAf9984B8"
+      address: "0xa002F649136584ef610449060F25804C59E5788b"
       abi: HugoDao
-      startBlock: 11055935
+      startBlock: 11078562
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
